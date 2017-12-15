@@ -3,7 +3,7 @@
  *****************************************************************************
  * Library to read information from dBASE files
  * Author: Bjoern Berg, clergyman@gmx.de
- * (C) Copyright 2004, Björn Berg
+ * (C) Copyright 2004, Bjï¿½rn Berg
  *
  *****************************************************************************
  * Permission to use, copy, modify and distribute this software and its
@@ -20,7 +20,7 @@
 #ifndef __DBF_CORE__
 #define __DBF_CORE__
 
-#include "config.h"
+//#include "config.h"
 
 #ifdef ENABLE_NLS
 #include <libintl.h>

@@ -4,7 +4,7 @@
  * Routines for Little Endian and Big Endian Systems
  * Library version
  *
- * Author: Björn Berg <clergyman@gmx.de>, Uwe Steinmann <uwe@steinmann.cx>
+ * Author: Bjï¿½rn Berg <clergyman@gmx.de>, Uwe Steinmann <uwe@steinmann.cx>
  *
  *****************************************************************************
  * $Id: dbf_endian.c,v 1.3 2004/09/09 10:32:22 steinm Exp $
@@ -50,3 +50,5 @@ u_int32_t rotate4b(u_int32_t var) {
  * vim600: sw=4 ts=4 fdm=marker
  * vim<600: sw=4 ts=4
  */
+
+ 

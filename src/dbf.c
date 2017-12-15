@@ -3,7 +3,7 @@
  *****************************************************************************
  * Library to read information from dBASE files
  * Author: Bjoern Berg, clergyman@gmx.de
- * (C) Copyright 2004, Björn Berg
+ * (C) Copyright 2004, Bjï¿½rn Berg
  *
  *****************************************************************************
  * Permission to use, copy, modify and distribute this software and its
@@ -16,7 +16,6 @@
  * $Id: dbf.c,v 1.8 2004/09/07 16:08:23 steinm Exp $
  ****************************************************************************/
 
-
 #include <time.h>
 #include "../include/libdbf/libdbf.h"
 #include "dbf.h"
@@ -24,35 +23,37 @@
 /* get_db_version() {{{
  * Convert version field of header into human readable string.
  */
-const char *get_db_version(int version) {
+const char *get_db_version(int version)
+{
 	static char name[31];
 
-	switch (version) {
-		case 0x02:
-			// without memo fields
-			return "FoxBase";
-		case 0x03:
-			// without memo fields
-			return "FoxBase+/dBASE III+";
-		case 0x04:
-			// without memo fields
-			return "dBASE IV";
-		case 0x05:
-			// without memo fields
-			return "dBASE 5.0";
-		case 0x83:
-			return "FoxBase+/dBASE III+";
-		case 0x8B:
-			return "dBASE IV";
-		case 0x30:
-			// without memo fields
-			return "Visual FoxPro";
-		case 0xF5:
-			// with memo fields
-			return "FoxPro 2.0";
-		default:
-			sprintf(name, _("Unknown (code 0x%.2X)"), version);
-			return name;
+	switch (version)
+	{
+	case 0x02:
+		// without memo fields
+		return "FoxBase";
+	case 0x03:
+		// without memo fields
+		return "FoxBase+/dBASE III+";
+	case 0x04:
+		// without memo fields
+		return "dBASE IV";
+	case 0x05:
+		// without memo fields
+		return "dBASE 5.0";
+	case 0x83:
+		return "FoxBase+/dBASE III+";
+	case 0x8B:
+		return "dBASE IV";
+	case 0x30:
+		// without memo fields
+		return "Visual FoxPro";
+	case 0xF5:
+		// with memo fields
+		return "FoxPro 2.0";
+	default:
+		sprintf(name, _("Unknown (code 0x%.2X)"), version);
+		return name;
 	}
 }
 /* }}} */
@@ -63,10 +64,12 @@ const char *get_db_version(int version) {
 static int dbf_ReadHeaderInfo(P_DBF *p_dbf)
 {
 	DB_HEADER *header;
-	if(NULL == (header = malloc(sizeof(DB_HEADER)))) {
+	if (NULL == (header = malloc(sizeof(DB_HEADER))))
+	{
 		return -1;
 	}
-	if ((read( p_dbf->dbf_fh, header, sizeof(DB_HEADER))) == -1 ) {
+	if ((read(p_dbf->dbf_fh, header, sizeof(DB_HEADER))) == -1)
+	{
 		return -1;
 	}
 
@@ -89,16 +92,18 @@ static int dbf_WriteHeaderInfo(P_DBF *p_dbf, DB_HEADER *header)
 	struct tm *ps_local_tm;
 
 	DB_HEADER *newheader = malloc(sizeof(DB_HEADER));
-	if(NULL == newheader) {
+	if (NULL == newheader)
+	{
 		return -1;
 	}
 	memcpy(newheader, header, sizeof(DB_HEADER));
 
 	ps_calendar_time = time(NULL);
-	if(ps_calendar_time != (time_t)(-1)) {
+	if (ps_calendar_time != (time_t)(-1))
+	{
 		ps_local_tm = localtime(&ps_calendar_time);
 		newheader->last_update[0] = ps_local_tm->tm_year;
-		newheader->last_update[1] = ps_local_tm->tm_mon+1;
+		newheader->last_update[1] = ps_local_tm->tm_mon + 1;
 		newheader->last_update[2] = ps_local_tm->tm_mday;
 	}
 
@@ -111,7 +116,8 @@ static int dbf_WriteHeaderInfo(P_DBF *p_dbf, DB_HEADER *header)
 	 * been written.
 	 */
 	lseek(p_dbf->dbf_fh, 0, SEEK_SET);
-	if ((write( p_dbf->dbf_fh, newheader, sizeof(DB_HEADER))) == -1 ) {
+	if ((write(p_dbf->dbf_fh, newheader, sizeof(DB_HEADER))) == -1)
+	{
 		free(newheader);
 		return -1;
 	}
@@ -131,13 +137,15 @@ static int dbf_ReadFieldInfo(P_DBF *p_dbf)
 
 	columns = dbf_NumCols(p_dbf);
 
-	if(NULL == (fields = malloc(columns * sizeof(DB_FIELD)))) {
+	if (NULL == (fields = malloc(columns * sizeof(DB_FIELD))))
+	{
 		return -1;
 	}
 
 	lseek(p_dbf->dbf_fh, sizeof(DB_HEADER), SEEK_SET);
 
-	if ((read( p_dbf->dbf_fh, fields, columns * sizeof(DB_FIELD))) == -1 ) {
+	if ((read(p_dbf->dbf_fh, fields, columns * sizeof(DB_FIELD))) == -1)
+	{
 		perror(_("In function dbf_ReadFieldInfo(): "));
 		return -1;
 	}
@@ -145,7 +153,8 @@ static int dbf_ReadFieldInfo(P_DBF *p_dbf)
 	p_dbf->columns = columns;
 	/* The first byte of a record indicates whether it is deleted or not. */
 	offset = 1;
-	for(i = 0; i < columns; i++) {
+	for (i = 0; i < columns; i++)
+	{
 		fields[i].field_offset = offset;
 		offset += fields[i].field_length;
 	}
@@ -161,7 +170,8 @@ static int dbf_WriteFieldInfo(P_DBF *p_dbf, DB_FIELD *fields, int numfields)
 {
 	lseek(p_dbf->dbf_fh, sizeof(DB_HEADER), SEEK_SET);
 
-	if ((write( p_dbf->dbf_fh, fields, numfields * sizeof(DB_FIELD))) == -1 ) {
+	if ((write(p_dbf->dbf_fh, fields, numfields * sizeof(DB_FIELD))) == -1)
+	{
 		perror(_("In function dbf_WriteFieldInfo(): "));
 		return -1;
 	}
@@ -178,25 +188,31 @@ static int dbf_WriteFieldInfo(P_DBF *p_dbf, DB_FIELD *fields, int numfields)
 P_DBF *dbf_Open(const char *file)
 {
 	P_DBF *p_dbf;
-	if(NULL == (p_dbf = malloc(sizeof(P_DBF)))) {
+	if (NULL == (p_dbf = malloc(sizeof(P_DBF))))
+	{
 		return NULL;
 	}
 
-	if (file[0] == '-' && file[1] == '\0') {
+	if (file[0] == '-' && file[1] == '\0')
+	{
 		p_dbf->dbf_fh = fileno(stdin);
-	} else if ((p_dbf->dbf_fh = open(file, O_RDONLY|O_BINARY)) == -1) {
+	}
+	else if ((p_dbf->dbf_fh = open(file, O_RDONLY | O_BINARY)) == -1)
+	{
 		free(p_dbf);
 		return NULL;
 	}
 
 	p_dbf->header = NULL;
-	if(0 > dbf_ReadHeaderInfo(p_dbf)) {
+	if (0 > dbf_ReadHeaderInfo(p_dbf))
+	{
 		free(p_dbf);
 		return NULL;
 	}
 
 	p_dbf->fields = NULL;
-	if(0 > dbf_ReadFieldInfo(p_dbf)) {
+	if (0 > dbf_ReadFieldInfo(p_dbf))
+	{
 		free(p_dbf->header);
 		free(p_dbf);
 		return NULL;
@@ -217,31 +233,36 @@ P_DBF *dbf_CreateFH(int fh, DB_FIELD *fields, int numfields)
 	DB_HEADER *header;
 	int reclen, i;
 
-	if(NULL == (p_dbf = malloc(sizeof(P_DBF)))) {
+	if (NULL == (p_dbf = malloc(sizeof(P_DBF))))
+	{
 		return NULL;
 	}
 
 	p_dbf->dbf_fh = fh;
 
-	if(NULL == (header = malloc(sizeof(DB_HEADER)))) {
+	if (NULL == (header = malloc(sizeof(DB_HEADER))))
+	{
 		return NULL;
 	}
 	reclen = 0;
-	for(i=0; i<numfields; i++) {
+	for (i = 0; i < numfields; i++)
+	{
 		reclen += fields[i].field_length;
 	}
 	memset(header, 0, sizeof(DB_HEADER));
 	header->version = FoxBasePlus;
 	/* Add 1 to record length for deletion flog */
-	header->record_length = reclen+1;
+	header->record_length = reclen + 1;
 	header->header_length = sizeof(DB_HEADER) + numfields * sizeof(DB_FIELD) + 2;
-	if(0 > dbf_WriteHeaderInfo(p_dbf, header)) {
+	if (0 > dbf_WriteHeaderInfo(p_dbf, header))
+	{
 		free(p_dbf);
 		return NULL;
 	}
 	p_dbf->header = header;
 
-	if(0 > dbf_WriteFieldInfo(p_dbf, fields, numfields)) {
+	if (0 > dbf_WriteFieldInfo(p_dbf, fields, numfields))
+	{
 		free(p_dbf->header);
 		free(p_dbf);
 		return NULL;
@@ -261,13 +282,16 @@ P_DBF *dbf_Create(const char *file, DB_FIELD *fields, int numfields)
 {
 	int fh;
 
-	if (file[0] == '-' && file[1] == '\0') {
+	if (file[0] == '-' && file[1] == '\0')
+	{
 		fh = fileno(stdout);
-	} else if ((fh = open(file, O_WRONLY|O_BINARY)) == -1) {
+	}
+	else if ((fh = open(file, O_WRONLY | O_BINARY)) == -1)
+	{
 		return NULL;
 	}
 
-	return(dbf_CreateFH(fh, fields, numfields));
+	return (dbf_CreateFH(fh, fields, numfields));
 }
 /* }}} */
 
@@ -276,16 +300,17 @@ P_DBF *dbf_Create(const char *file, DB_FIELD *fields, int numfields)
  */
 int dbf_Close(P_DBF *p_dbf)
 {
-	if(p_dbf->header)
+	if (p_dbf->header)
 		free(p_dbf->header);
 
-	if(p_dbf->fields)
+	if (p_dbf->fields)
 		free(p_dbf->fields);
 
-	if ( p_dbf->dbf_fh == fileno(stdin) )
+	if (p_dbf->dbf_fh == fileno(stdin))
 		return 0;
 
-	if( (close(p_dbf->dbf_fh)) == -1 ) {
+	if ((close(p_dbf->dbf_fh)) == -1)
+	{
 		return -1;
 	}
 
@@ -306,9 +331,12 @@ int dbf_Close(P_DBF *p_dbf)
  */
 int dbf_NumRows(P_DBF *p_dbf)
 {
-	if ( p_dbf->header->records > 0 ) {
+	if (p_dbf->header->records > 0)
+	{
 		return p_dbf->header->records;
-	} else {
+	}
+	else
+	{
 		perror(_("In function dbf_NumRows(): "));
 		return -1;
 	}
@@ -322,11 +350,13 @@ int dbf_NumRows(P_DBF *p_dbf)
  */
 int dbf_NumCols(P_DBF *p_dbf)
 {
-	if ( p_dbf->header->header_length > 0) {
+	if (p_dbf->header->header_length > 0)
+	{
 		// TODO: Backlink muss noch eingerechnet werden
-		return ((p_dbf->header->header_length - sizeof(DB_HEADER) -1)
-					 / sizeof(DB_FIELD));
-	} else {
+		return ((p_dbf->header->header_length - sizeof(DB_HEADER) - 1) / sizeof(DB_FIELD));
+	}
+	else
+	{
 		perror(_("In function dbf_NumCols(): "));
 		return -1;
 	}
@@ -345,7 +375,8 @@ int dbf_NumCols(P_DBF *p_dbf)
  */
 const char *dbf_ColumnName(P_DBF *p_dbf, int column)
 {
-	if ( column >= p_dbf->columns ) {
+	if (column >= p_dbf->columns)
+	{
 		return "invalid";
 	}
 
@@ -357,11 +388,12 @@ const char *dbf_ColumnName(P_DBF *p_dbf, int column)
  */
 int dbf_ColumnSize(P_DBF *p_dbf, int column)
 {
-	if ( column >= p_dbf->columns ) {
+	if (column >= p_dbf->columns)
+	{
 		return -1;
 	}
 
-	return (int) p_dbf->fields[column].field_length;
+	return (int)p_dbf->fields[column].field_length;
 }
 /* }}} */
 
@@ -369,7 +401,8 @@ int dbf_ColumnSize(P_DBF *p_dbf, int column)
  */
 const char dbf_ColumnType(P_DBF *p_dbf, int column)
 {
-	if ( column >= p_dbf->columns ) {
+	if (column >= p_dbf->columns)
+	{
 		return -1;
 	}
 
@@ -381,7 +414,8 @@ const char dbf_ColumnType(P_DBF *p_dbf, int column)
  */
 int dbf_ColumnDecimals(P_DBF *p_dbf, int column)
 {
-	if ( column >= p_dbf->columns ) {
+	if (column >= p_dbf->columns)
+	{
 		return -1;
 	}
 
@@ -393,7 +427,8 @@ int dbf_ColumnDecimals(P_DBF *p_dbf, int column)
  */
 u_int32_t dbf_ColumnAddress(P_DBF *p_dbf, int column)
 {
-	if ( column >= p_dbf->columns ) {
+	if (column >= p_dbf->columns)
+	{
 		return -1;
 	}
 
@@ -427,12 +462,15 @@ const char *dbf_GetDate(P_DBF *p_dbf)
 {
 	static char date[10];
 
-	if ( p_dbf->header->last_update[0] ) {
+	if (p_dbf->header->last_update[0])
+	{
 		sprintf(date, "%d-%02d-%02d",
-		1900 + p_dbf->header->last_update[0], p_dbf->header->last_update[1], p_dbf->header->last_update[2]);
+				1900 + p_dbf->header->last_update[0], p_dbf->header->last_update[1], p_dbf->header->last_update[2]);
 
 		return date;
-	} else {
+	}
+	else
+	{
 		perror("In function GetDate(): ");
 		return "";
 	}
@@ -445,9 +483,12 @@ const char *dbf_GetDate(P_DBF *p_dbf)
  */
 int dbf_HeaderSize(P_DBF *p_dbf)
 {
- 	if ( p_dbf->header->header_length > 0 ) {
+	if (p_dbf->header->header_length > 0)
+	{
 		return p_dbf->header->header_length;
-	} else {
+	}
+	else
+	{
 		perror(_("In function dbf_HeaderSize(): "));
 		return -1;
 	}
@@ -461,9 +502,12 @@ int dbf_HeaderSize(P_DBF *p_dbf)
  */
 int dbf_RecordLength(P_DBF *p_dbf)
 {
- 	if (p_dbf->header->record_length > 0) {
+	if (p_dbf->header->record_length > 0)
+	{
 		return p_dbf->header->record_length;
-	} else {
+	}
+	else
+	{
 		perror(_("In function dbf_RecordLength(): "));
 		return -1;
 	}
@@ -477,7 +521,8 @@ int dbf_RecordLength(P_DBF *p_dbf)
  */
 const char *dbf_GetStringVersion(P_DBF *p_dbf)
 {
-	if ( p_dbf->header->version == 0 ) {
+	if (p_dbf->header->version == 0)
+	{
 		perror(_("In function dbf_GetStringVersion(): "));
 		return (char *)-1;
 	}
@@ -491,7 +536,8 @@ const char *dbf_GetStringVersion(P_DBF *p_dbf)
  */
 int dbf_GetVersion(P_DBF *p_dbf)
 {
-	if ( p_dbf->header->version == 0 ) {
+	if (p_dbf->header->version == 0)
+	{
 		perror(_("In function dbf_GetVersion(): "));
 		return -1;
 	}
@@ -506,12 +552,13 @@ int dbf_IsMemo(P_DBF *p_dbf)
 {
 	int memo;
 
-	if ( p_dbf->header->version == 0 ) {
+	if (p_dbf->header->version == 0)
+	{
 		perror(_("In function dbf_IsMemo(): "));
 		return -1;
 	}
 
-	memo = (p_dbf->header->version  & 128)==128 ? 1 : 0;
+	memo = (p_dbf->header->version & 128) == 128 ? 1 : 0;
 
 	return memo;
 }
@@ -523,57 +570,65 @@ int dbf_IsMemo(P_DBF *p_dbf)
 
 /* dbf_SetRecordOffset() {{{
  */
-int dbf_SetRecordOffset(P_DBF *p_dbf, int offset) {
-	if(offset == 0)
+int dbf_SetRecordOffset(P_DBF *p_dbf, int offset)
+{
+	if (offset == 0)
 		return -3;
-	if(offset > (int) p_dbf->header->records)
+	if (offset > (int)p_dbf->header->records)
 		return -1;
-	if((offset < 0) && (abs(offset) > p_dbf->header->records))
+	if ((offset < 0) && (abs(offset) > p_dbf->header->records))
 		return -2;
-	if(offset < 0)
-		p_dbf->cur_record = (int) p_dbf->header->records + offset;
+	if (offset < 0)
+		p_dbf->cur_record = (int)p_dbf->header->records + offset;
 	else
-		p_dbf->cur_record = offset-1;
+		p_dbf->cur_record = offset - 1;
 	return p_dbf->cur_record;
 }
 /* }}} */
 
 /* dbf_ReadRecord() {{{
  */
-int dbf_ReadRecord(P_DBF *p_dbf, char *record, int len) {
+int dbf_ReadRecord(P_DBF *p_dbf, char *record, int len)
+{
 	off_t offset;
 
-	if(p_dbf->cur_record >= p_dbf->header->records)
+	if (p_dbf->cur_record >= p_dbf->header->records)
 		return -1;
 
 	offset = lseek(p_dbf->dbf_fh, p_dbf->header->header_length + p_dbf->cur_record * (p_dbf->header->record_length), SEEK_SET);
-//	fprintf(stdout, "Offset = %d, Record length = %d\n", offset, p_dbf->header->record_length);
-	if (read( p_dbf->dbf_fh, record, p_dbf->header->record_length) == -1 ) {
+	//	fprintf(stdout, "Offset = %d, Record length = %d\n", offset, p_dbf->header->record_length);
+	if (read(p_dbf->dbf_fh, record, p_dbf->header->record_length) == -1)
+	{
 		return -1;
 	}
 	p_dbf->cur_record++;
-	return p_dbf->cur_record-1;
+	return p_dbf->cur_record - 1;
 }
 /* }}} */
 
 /* dbf_WriteRecord() {{{
  */
-int dbf_WriteRecord(P_DBF *p_dbf, char *record, int len) {
+int dbf_WriteRecord(P_DBF *p_dbf, char *record, int len)
+{
 
-	if(len != p_dbf->header->record_length-1) {
+	if (len != p_dbf->header->record_length - 1)
+	{
 		fprintf(stderr, _("Length of record mismatches expected length (%d != %d)."), len, p_dbf->header->record_length);
 		fprintf(stderr, "\n");
 		return -1;
 	}
 	lseek(p_dbf->dbf_fh, 0, SEEK_END);
-	if (write( p_dbf->dbf_fh, " ", 1) == -1 ) {
+	if (write(p_dbf->dbf_fh, " ", 1) == -1)
+	{
 		return -1;
 	}
-	if (write( p_dbf->dbf_fh, record, p_dbf->header->record_length-1) == -1 ) {
+	if (write(p_dbf->dbf_fh, record, p_dbf->header->record_length - 1) == -1)
+	{
 		return -1;
 	}
 	p_dbf->header->records++;
-	if(0 > dbf_WriteHeaderInfo(p_dbf, p_dbf->header)) {
+	if (0 > dbf_WriteHeaderInfo(p_dbf, p_dbf->header))
+	{
 		return -1;
 	}
 	return p_dbf->header->records;
@@ -582,8 +637,9 @@ int dbf_WriteRecord(P_DBF *p_dbf, char *record, int len) {
 
 /* dbf_GetRecordData() {{{
  */
-char *dbf_GetRecordData(P_DBF *p_dbf, char *record, int column) {
-	return(record + p_dbf->fields[column].field_offset);
+char *dbf_GetRecordData(P_DBF *p_dbf, char *record, int column)
+{
+	return (record + p_dbf->fields[column].field_offset);
 }
 /* }}} */
 
@@ -595,3 +651,80 @@ char *dbf_GetRecordData(P_DBF *p_dbf, char *record, int column) {
  * vim600: sw=4 ts=4 fdm=marker
  * vim<600: sw=4 ts=4
  */
+
+void printInfo(char* block, int num_cols, int *size_cols, char** header_name)
+{
+	int i = 0, offset = 1, j = 0;
+	for (i = 0; i < num_cols; i++)
+	{
+		printf("%s: ", *(header_name+i));
+		for ( j = 0; j < size_cols[i]; j++)
+			putc(block[offset+j], stdout);
+		offset += j;
+		printf("\t");
+	}
+	printf("\n");
+		
+}
+int main()
+{
+
+	P_DBF* fp = dbf_Open("/home/nowayrlz/Downloads/DOINF15.dbc");
+	//P_DBF *fp = dbf_Open("/home/nowayrlz/Downloads/DOBR2010.dbf");
+	//int bytes = dbf_ReadHeaderInfo(fp);
+	int num_cols = 0, num_records = 0, record_length;
+
+	num_cols = dbf_NumCols(fp);
+	num_records = dbf_NumRows(fp);
+	record_length = dbf_RecordLength(fp);
+	int *tam_col = calloc(num_cols, sizeof(int));
+	
+	printf("Number of columns: %d\n", num_cols);
+	printf("Number of records: %d\n", num_records);
+	printf("Record Length: %d\n", record_length);
+
+	char *block = calloc(record_length, sizeof(char));
+	char** col_header = calloc(num_cols, sizeof(char*));
+	
+	int i, j;
+
+		
+	for (i = 0; i < num_cols; i++)
+	{
+		tam_col[i] = dbf_ColumnSize(fp, i);
+		printf("COL_size[%d] = %d\n", i, tam_col[i]);
+		*(col_header + i) = calloc(12, sizeof(char));
+		strcpy(*(col_header+i), dbf_ColumnName(fp, i));
+	}
+
+	for (j = 0; j < num_records; j++)
+	{
+		//for(i = 0; i < num_cols; i++)
+		//{
+		//str[i] = dbf_ColumnName(fp, i);
+		//printf("%s;", dbf_ColumnName(fp, i));
+
+		if (dbf_ReadRecord(fp, block, record_length) != -1)
+		{
+			//for(int z = 0; z < record_length; z++)
+			//printf("%d", block[z]);
+			//printf("%s;", block);
+			printInfo(block, num_cols, tam_col, col_header);
+			if (j % 100 == 0)
+				printf("%d\n", j);
+			//getchar();
+		}
+		else
+		{
+			printf("Erro!\n");
+			getchar();
+			//exit(0);
+		}
+
+		//}
+		//printf("\n");
+	}
+	free(block);
+	printf("rolou\n");
+	return 0;
+}
